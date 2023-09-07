@@ -1,0 +1,25 @@
+name: netbird-connect
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Netbird Action
+        uses: ./
+        with:
+          setup-key: ${{ secrets.NB_SETUP_KEY }}
+
+      - name: Check for connection status
+        run:
+          netbird status
