@@ -30,6 +30,8 @@ runs:
         exit 1
     - name: Download Netbird
       shell: bash
+      env:
+        USE_BIN_INSTALL: true
       run: curl -fsSL https://pkgs.netbird.io/install.sh | sh
     - name: Connect to Netbird
       shell: bash
