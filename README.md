@@ -32,7 +32,7 @@ jobs:
 
       - name: Netbird Connect
         id: netbird
-        uses: Alemiz112/netbird-connect-action@v1
+        uses: Alemiz112/netbird-connect@v1
         with:
           setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
           hostname: 'my-custom-hostname'
