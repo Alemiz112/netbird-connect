@@ -9,9 +9,9 @@ inputs:
     required: false
     default: ''
   management-url:
-    description: 'Management Service URL [http|https]://[host]:[port] (default "https://api.wiretrustee.com:443")'
+    description: 'Management Service URL [http|https]://[host]:[port] (default "https://api.netbird.io:443")'
     required: false
-    default: 'https://api.wiretrustee.com:443'
+    default: 'https://api.netbird.io:443'
   args:
     description: 'Optional additional arguments to `netbird up`'
     required: false
