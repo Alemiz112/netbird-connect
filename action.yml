@@ -23,16 +23,25 @@ runs:
   using: 'composite'
   steps:
     - name: Check Runner OS
-      if: ${{ runner.os != 'Linux' }}
+      if: ${{ runner.os != 'Linux' && runner.os != 'Windows' }}
       shell: bash
       run: |
-        echo "::error title=error hint::Support Linux Only"
+        echo "::error title=error hint::Support Linux and Windows Only"
         exit 1
-    - name: Download Netbird
+    - name: Download Netbird (Linux)
+      if: runner.os == 'Linux'
       shell: bash
       env:
         USE_BIN_INSTALL: true
       run: curl -fsSL https://pkgs.netbird.io/install.sh | sh
+    - name: Download Netbird (Windows)
+      if: runner.os == 'Windows'
+      shell: PowerShell
+      run: |
+        $msiPath = "$env:TEMP\netbird_installer.msi"
+        Invoke-WebRequest -Uri "https://pkgs.netbird.io/windows/msi/x64" -OutFile $msiPath
+        Start-Process msiexec.exe -Wait -ArgumentList "/i $msiPath AUTOSTART=0 /quiet"
+        "C:\Program Files\NetBird" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Connect to Netbird
       shell: bash
       env:
@@ -42,13 +51,24 @@ runs:
         MANAGEMENT_URL: ${{ inputs.management-url }}
       run: |
         if [ -z "${HOSTNAME}" ]; then
-          HOSTNAME="github-$(cat /etc/hostname)"
+          HOSTNAME="github-$(hostname)"
         fi
-        sudo netbird up --setup-key=${SETUP_KEY} --hostname=${HOSTNAME} --management-url=${MANAGEMENT_URL} ${ADDITIONAL_ARGS}
+
+        SUDO=""
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          SUDO="sudo"
+        fi
+
+        $SUDO netbird up --setup-key=${SETUP_KEY} --hostname=${HOSTNAME} --management-url=${MANAGEMENT_URL} ${ADDITIONAL_ARGS}
     - name: Wait for Netbird to connect
       shell: bash
       run: |
-          while [ -z "$(sudo netbird status | grep 'Management: Connected')" ]; do
+        SUDO=""
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          SUDO="sudo"
+        fi
+        
+        while [ -z "$($SUDO netbird status | grep 'Management: Connected')" ]; do
           echo "Waiting for Netbird to connect..."
           sleep 5
-          done
+        done

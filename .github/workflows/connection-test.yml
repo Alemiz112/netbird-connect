@@ -7,18 +7,33 @@ on:
   pull_request:
     branches:
       - '*'
+  workflow_dispatch:
 
 jobs:
-  build:
+  test-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Netbird Action
         uses: ./
         with:
           setup-key: ${{ secrets.NB_SETUP_KEY }}
+
+      - name: Check for connection status
+        run:
+          netbird status
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Test local action on Windows
+        uses: ./
+        with:
+          setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
 
       - name: Check for connection status
         run:
